@@ -1,0 +1,32 @@
+[
+  {
+    "step": 1,
+    "title": "01 取数:java.ajax 与它的兄弟",
+    "summary": "java.ajax / get / post / head / connect 的区别,以及什么时候必须用 ajax",
+    "url": "01-fetch.html"
+  },
+  {
+    "step": 2,
+    "title": "02 解析:CSS、@Json 与 @js",
+    "summary": "同一条规则里三种写法怎么选;取不到时先看什么",
+    "url": "02-parse.html"
+  },
+  {
+    "step": 3,
+    "title": "03 凭据:登录信息与请求头",
+    "summary": "getLoginInfoMap / getLoginHeader / getHeaderMap,以及账号型源怎么搭",
+    "url": "03-login.html"
+  },
+  {
+    "step": 4,
+    "title": "04 加密:摘要、HMAC 与对称加解密",
+    "summary": "md5Encode / HMacHex / createSymmetricCrypto 的参数口径",
+    "url": "04-crypto.html"
+  },
+  {
+    "step": 5,
+    "title": "05 边界:源脚本能碰什么",
+    "summary": "能出网、能读源自己的数据;不能碰文件与界面。写源前先看这一页",
+    "url": "05-boundary.html"
+  }
+]

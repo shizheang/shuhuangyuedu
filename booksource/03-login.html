@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>凭据</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>03 凭据:登录信息与请求头</h1>
+  <p class="lead">账号型站点几乎都是同一套:用户在登录面板填几个字段,规则里读出这些字段算出 token,再把 token 塞进请求头。<strong>不要把这些值硬编码进源</strong> —— 它们按源存放,换台设备就该重新填。</p>
+
+  <h2>登录面板是怎么来的</h2>
+  <p><code>loginUi</code> 字段声明面板上有哪些输入框和按钮;<code>loginUrl</code> 是进源前先跑的初始化(取站点地址、换取 token 这类)。用户在面板里填的东西会<strong>按源地址存下来</strong>,规则里再读。</p>
+  <pre><code>loginUi（示例结构）
+[
+  { "name": "账号", "type": "text" },
+  { "name": "密码", "type": "password" },
+  { "name": "登录", "type": "button", "action": "Login()" }
+]</code></pre>
+
+  <h2>规则里怎么读</h2>
+  <ul>
+    <li><code>source.getLoginInfoMap()</code> —— 拿到整张表,<code>.get('账号')</code> 取值;</li>
+    <li><code>source.getLoginInfo('账号')</code> —— 直接取一个字段;</li>
+    <li><code>source.putLoginHeader(字符串)</code> —— 把算好的凭据写进"登录头",之后<strong>每次请求自动带上</strong>;</li>
+    <li><code>source.getLoginHeader()</code> —— 读回这段登录头。</li>
+  </ul>
+  <p>典型写法:面板按钮里算出 token 并写进登录头,正文规则什么都不用做。</p>
+  <pre><code>function Login() {
+  var ui = source.getLoginInfoMap();
+  var token = java.post(base + '/login', JSON.stringify({
+    user: ui.get('账号'), pass: ui.get('密码')
+  })).body();
+  source.putLoginHeader(JSON.stringify({ authorization: 'Bearer ' + JSON.parse(token).token }));
+  java.toast('已登录');
+}</code></pre>
+
+  <h2>静态请求头写在 <code>header</code> 字段</h2>
+  <p>不带鉴权的固定头(UA、Referer)直接写成 JSON 字符串即可。写成 <code>&lt;js&gt;…&lt;/js&gt;</code> 时会求值,用于算签名或时间戳。</p>
+  <pre><code>{"User-Agent":"Mozilla/5.0 …","Referer":"https://example.com/"}</code></pre>
+  <p>静态头与登录头会<strong>合并</strong>后随每次请求发出。</p>
+
+  <h2>三条经验</h2>
+  <ul>
+    <li><strong>先确认面板里真有那个字段</strong>。规则读一个面板上没有的字段,拿到的是空串,而表现往往是"永远未登录",不报错。</li>
+    <li><strong>登录动作写在 <code>loginUrl</code> 里,别写在正文规则里</strong>。软件会在进源前跑一遍初始化,把登录产物准备好。</li>
+    <li><strong>cookie 型站点</strong>可以用 <code>cookie.getCookie(url)</code> 同步读、<code>cookie.setCookie(...)</code> 写;但优先用登录头,它更可控。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

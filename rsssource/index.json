@@ -1,0 +1,20 @@
+[
+  {
+    "step": 1,
+    "title": "01 分类:sortUrl 怎么写",
+    "summary": "纯文本、名称::地址,以及什么时候必须写成 @js",
+    "url": "01-sort.html"
+  },
+  {
+    "step": 2,
+    "title": "02 列表与正文",
+    "summary": "ruleArticles / 翻页 / 字段,与 ruleContent 的取法",
+    "url": "02-list.html"
+  },
+  {
+    "step": 3,
+    "title": "03 单 url 源",
+    "summary": "整站就是一个页面时,怎么用单 url 那一档",
+    "url": "03-single.html"
+  }
+]

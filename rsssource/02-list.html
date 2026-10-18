@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>列表与正文</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>02 列表与正文</h1>
+  <p class="lead">分类决定"抓哪个地址",这里决定"从抓回来的东西里取出什么"。</p>
+
+  <h2>列表:先找"每一项"</h2>
+  <p><code>ruleArticles</code> 指向的是<strong>单条记录的容器</strong>,不是整个列表。</p>
+  <pre><code>ruleArticles: class.feed@tag.item</code></pre>
+  <p>然后逐字段取,规则作用在<strong>每一条</strong>上:</p>
+  <ul>
+    <li><code>ruleTitle</code> —— 标题;</li>
+    <li><code>ruleLink</code> —— 文章地址(相对地址会自动绝对化);</li>
+    <li><code>rulePubDate</code> —— 时间;</li>
+    <li><code>ruleDescription</code> —— 摘要;</li>
+    <li><code>ruleImage</code> —— 封面。</li>
+  </ul>
+
+  <h2>是 RSS / Atom 就不用写规则</h2>
+  <p><code>ruleArticles</code> 留空时,软件按标准 RSS / Atom 解析 <code>item</code> 与 <code>entry</code>,标题、链接、时间、摘要都是现成的。只有当站点返回的是普通网页或私有 JSON 时才需要自己写。</p>
+
+  <h2>翻页</h2>
+  <p>两种形态,别写混:</p>
+  <ul>
+    <li><strong>有"下一页"链接</strong> —— <code>ruleNextPage: text.下一页@href</code>;</li>
+    <li><strong>靠页码</strong> —— <code>ruleNextPage: PAGE</code>,页码由分类地址里的 <code>{{page}}</code> 提供。</li>
+  </ul>
+  <p>把"下一页"写成当前页地址,会去请求同一页,结果是文章全被去重、看起来"只有一页"。这是最常见的翻页错误。</p>
+
+  <h2>正文</h2>
+  <pre><code>ruleContent: class.article-content@html</code></pre>
+  <p><code>@html</code> 保留标签(图片、段落都在),<code>@text</code> 只留文字。要保留排版就用 <code>@html</code>。</p>
+  <p>正文里的相对图片与链接会按文章地址绝对化,不用自己拼。</p>
+
+  <h2>正文需要跑脚本怎么办</h2>
+  <p>如果正文里带 <code>&lt;script&gt;</code> 且真的发请求(播放器、懒加载),软件会把它放进一个<strong>有真实站点源</strong>的容器里跑。这不是你能开关的,是自动判断的 —— 所以规则只要把 HTML 原样取出来即可,不要提前把 <code>&lt;script&gt;</code> 删掉。</p>
+
+  <h2>自检</h2>
+  <ul>
+    <li>列表能出条目,但点进去是空的 → 先看 <code>ruleContent</code> 是不是取到了容器内层;</li>
+    <li>条目重复 → 列表规则取到的是外层容器;</li>
+    <li>第二页和第一页一样 → 翻页规则写错了(见上)。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

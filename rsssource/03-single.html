@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>单 url 源</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>03 单 url 源</h1>
+  <p class="lead">有一类站点<strong>没有"文章列表"</strong> —— 整个站就是一个会自己滚动的页面(论坛、资源导航、聚合页)。这类不要硬写列表规则,用单 url 那一档。</p>
+
+  <h2>怎么声明</h2>
+  <pre><code>singleUrl: true
+sortUrl: 默认::https://example.com/</code></pre>
+  <p>打开源之后,软件直接把那个地址作为一个完整页面呈现,不解析列表、不解析正文。</p>
+
+  <h2>它和普通源的区别</h2>
+  <ul>
+    <li>不需要 <code>ruleArticles</code> / <code>ruleContent</code>;</li>
+    <li>顶栏只有一个"重新加载",没有分类栏(除非你写了多个 <code>sortUrl</code> 条目);</li>
+    <li><code>ruleContent</code> 留空时才走这一档 —— 写了正文规则就不是单 url 源了。</li>
+  </ul>
+
+  <h2>三种呈现方式,由软件自动选</h2>
+  <ol>
+    <li>直接把这个地址嵌进来(最忠实:相对地址、同源 cookie、站点脚本全都正常);</li>
+    <li>站点声明了"不许被内嵌"时,由软件代取 HTML 再呈现(站内跳转仍可用);</li>
+    <li>前两种都失败时,给一个明确的出口 —— 用独立窗口打开。</li>
+  </ol>
+  <p>所以写单 url 源时<strong>不需要为"能不能嵌"做任何处理</strong>,软件会先探测再决定。</p>
+
+  <h2>什么时候不该用它</h2>
+  <ul>
+    <li>站点有真正的文章列表 —— 用普通订阅源,能拿到标题、时间、摘要,体验好得多;</li>
+    <li>你只想要站点的某一块内容 —— 那还是写 <code>ruleContent</code>。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

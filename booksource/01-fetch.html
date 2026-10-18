@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>取数</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>01 取数:<code>java.ajax</code> 与它的兄弟</h1>
+  <p class="lead">先弄清一件事:在这个软件里<strong>所有出网都走应用自己的通道</strong>,不是浏览器的 <code>fetch</code>。所以规则里请一律用下面这几个方法,不要写 <code>fetch()</code>。</p>
+
+  <h2>四个方法,一句话分工</h2>
+  <ul>
+    <li><code>java.ajax(url)</code> —— 只想要<strong>正文文本</strong>时用它。返回值就是字符串。</li>
+    <li><code>java.get(url, headers)</code> —— 想要<strong>响应对象</strong>(状态码、头、cookie)时用它。</li>
+    <li><code>java.post(url, body, headers)</code> —— 表单或 JSON 提交。</li>
+    <li><code>java.head(url, headers)</code> —— 只要响应头(测连通、取 etag)。</li>
+  </ul>
+
+  <h2>要文本,还是响应对象</h2>
+  <p><code>java.ajax</code> 给你一段文本,直接 <code>JSON.parse</code> 或丢给解析器就行。</p>
+  <pre><code>var html = java.ajax('https://example.com/list?page=1');</code></pre>
+  <p>需要看状态码或拿 cookie,就走 <code>java.get</code>,它返回的响应对象可以链式调用:</p>
+  <pre><code>var res = java.get(url, {});
+var code = res.code();
+var body = res.body();
+var ck   = res.cookies();</code></pre>
+  <p>这些响应对象同时也<strong>可以直接当字符串用</strong>(<code>await</code> 或 <code>String(...)</code> 拿到的是正文),所以老写法不会因为换了方法就断。</p>
+
+  <h2>URL 后面跟选项</h2>
+  <p><code>java.ajax</code> 认 <code>"地址,{...}"</code> 这种写法,后面那段 JSON 当作请求选项:</p>
+  <pre><code>var opt = JSON.stringify({ headers: { 'X-Token': token }, method: 'GET' });
+var text = java.ajax(base + url + ',' + opt);</code></pre>
+  <p>这也是为什么错误信息里偶尔会看到整串地址 —— 解析失败了而已,先确认 JSON 拼对了。</p>
+
+  <h2>不要做的事</h2>
+  <ul>
+    <li><strong>不要用 <code>fetch()</code></strong>。它走浏览器直连,会被跨域拦住,表现是"请求没发出去",而且在我们这边看不到任何记录。</li>
+    <li><strong>不要在主解析规则里写同步忙等</strong>(<code>while(Date.now()-t&lt;n){}</code>)。软件对空转有预算,烧穿了这一趟会被中止。</li>
+    <li><strong>不要在 <code>exploreUrl</code> 里做重活</strong>。分类结果会缓存很久(15 天),求值慢会拖慢整个发现页。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>加密</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>04 加密:摘要、HMAC 与对称加解密</h1>
+  <p class="lead">这些方法<strong>都是同步的</strong>,可以直接写在规则里。密钥和 IV 传字符串或字节数组都行 —— 但两者的含义不同,下面分开说。</p>
+
+  <h2>摘要</h2>
+  <ul>
+    <li><code>java.md5Encode(str)</code> —— 32 位小写 MD5;</li>
+    <li><code>java.md5Encode16(str)</code> —— 取上面那 32 位里的中间 16 位;</li>
+    <li><code>java.sha256Hex(str)</code> / <code>java.digestHex(str, 'SHA-256')</code> —— SHA-256。</li>
+  </ul>
+  <p>摘要按 <strong>UTF-8 字节</strong>算。中文关键词不会因为编码不同而和服务端对不上。</p>
+
+  <h2>HMAC</h2>
+  <pre><code>java.HMacHex(data, 'HmacMD5', key)
+java.HMacHex(data, 'HmacSHA256', key)</code></pre>
+  <p>参数顺序是 <strong>(数据, 算法, 密钥)</strong>,返回十六进制小写串。算法名大小写与连字符不敏感。目前只支持 MD5 与 SHA-256,用了别的会<strong>当场报错</strong>,而不是悄悄给你空串。</p>
+
+  <h2>对称加密(AES / DES 一类)</h2>
+  <pre><code>var c = java.createSymmetricCrypto('AES/ECB/PKCS7Padding', key, iv);
+c.encryptBase64('明文')     // → Base64 密文
+c.decryptStr(密文)          // → 明文
+c.encryptHex('明文')        // → 十六进制密文</code></pre>
+  <p><strong>密钥与 IV 的口径</strong>,这一条最容易错:</p>
+  <ul>
+    <li>传<strong>字符串</strong> —— 取它的 UTF-8 字节当密钥,长度必须是 16 / 24 / 32 字节;</li>
+    <li>传<strong>字节数组</strong>(<code>java.strToBytes(s)</code> 或 <code>java.base64DecodeToByteArray(s)</code> 的结果) —— <strong>原样使用</strong>,不会再转字符串。</li>
+  </ul>
+  <p>CBC 模式必须给 16 字节 IV;ECB 不需要。长度不对时返回 <code>null</code>,不会抛。</p>
+
+  <h2>编解码</h2>
+  <ul>
+    <li><code>java.base64Encode(s)</code> / <code>java.base64Decode(s)</code></li>
+    <li><code>java.strToBytes(s)</code> —— 字符串 → UTF-8 字节;</li>
+    <li><code>java.base64DecodeToByteArray(s)</code> —— Base64 → 字节;</li>
+    <li><code>java.encodeURI(s)</code> —— URL 编码(拼进地址的密文必须过一遍)。</li>
+  </ul>
+
+  <h2>排错顺序</h2>
+  <ul>
+    <li>先确认<strong>密钥长度</strong>对不对(16 / 24 / 32)。长度非法时 AES 返回 <code>null</code>,下一步往往是 <code>Cannot read properties of null</code>;</li>
+    <li>再确认<strong>填充方式</strong>与站点一致(PKCS5 与 PKCS7 在 AES 下等价);</li>
+    <li>还不对就比对<strong>一个已知答案</strong>:拿站点能解开的样例反推是编码问题还是密钥问题。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

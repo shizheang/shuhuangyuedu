@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>分类</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>01 分类:<code>sortUrl</code> 怎么写</h1>
+  <p class="lead">分类就是这个订阅源顶部的那些标签。它们<strong>不是从网页里解析出来的</strong>,而是你直接写在规则里的。写对了才有分类栏。</p>
+
+  <h2>最简单的写法:一行一个</h2>
+  <pre><code>最新::https://example.com/rss/latest.xml
+热门::https://example.com/rss/hot.xml</code></pre>
+  <p>格式是 <code>名称::地址</code>。用户点了哪个分类,软件就去抓那个地址,再把 <code>ruleArticles</code> 用在这份响应上。</p>
+
+  <h2>地址里可以有占位符</h2>
+  <pre><code>第 1 页::https://example.com/list?page={{page}}</code></pre>
+  <p><code>{{page}}</code> 在翻页时会被替换成页码。也可以写 <code>{{java.timeFormat(Date.now())}}</code> 这类表达式,用来做"今天的日期"这种地址。</p>
+
+  <h2>什么时候必须写成 <code>@js</code></h2>
+  <p>分类本身就是算出来的 —— 比如站点有一个接口返回全部分类,或者分类要靠登录信息决定。这时整段写成 JS:</p>
+  <pre><code>@js:
+var list = JSON.parse(java.ajax('https://example.com/api/categories')).data;
+list.map(x =&gt; x.name + '::https://example.com/feed/' + x.id).join('\n')</code></pre>
+  <p>返回一串多行文本就行,软件会按同样的 <code>名称::地址</code> 规则切。</p>
+
+  <h2>三个注意点</h2>
+  <ul>
+    <li><strong>分类结果会缓存 15 天</strong>。改成 <code>@js</code> 之后求值开销变大了,所以要确认它真的需要算 —— 纯文本永远是首选。</li>
+    <li><strong>地址拼不出来就别硬缓存</strong>。如果分类地址依赖"用户先选源站"这类前置动作,地址会拼成 <code>undefined/...</code>;软件遇到这种会拒绝缓存,但现象是"每次进都要重算"。</li>
+    <li><strong>改了 <code>sortUrl</code> 会自然失效</strong>。缓存键里编进了规则指纹,改完保存,下一次进源就是新结果。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

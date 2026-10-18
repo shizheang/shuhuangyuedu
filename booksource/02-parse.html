@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>解析</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>02 解析:CSS、<code>@Json</code> 与 <code>@js</code></h1>
+  <p class="lead">同一条规则有三种写法。选错不会报错,只会"取到空" —— 而空值在界面上看起来和"这个源没有数据"一模一样,所以先看清返回的是 HTML 还是 JSON。</p>
+
+  <h2>第一步:返回的是网页还是 JSON</h2>
+  <p>打开调试页看原始响应。以 <code>&lt;</code> 开头的基本是 HTML;以 <code>{</code> 或 <code>[</code> 开头的是 JSON。两者的规则完全不同,别混用。</p>
+
+  <h2>HTML:CSS 选择器</h2>
+  <ul>
+    <li><code>class.名字</code> —— 按 class 取;</li>
+    <li><code>id.名字</code> —— 按 id 取;</li>
+    <li><code>tag.标签</code> —— 按标签取;</li>
+    <li><code>text.一段文字</code> —— 按包含的文字取。</li>
+  </ul>
+  <p>取完节点再取属性:</p>
+  <pre><code>class.book-list@tag.li@tag.a@href</code></pre>
+  <p><code>@text</code> 取文字,<code>@html</code> 取内层 HTML,<code>@href</code> / <code>@src</code> 取属性。<code>@tag.a@href</code> 的意思是"在这个节点里再找 a,取它的 href"。</p>
+
+  <h2>JSON:JSONPath</h2>
+  <pre><code>$.[*]            → 取整个数组的每一项
+$.data.list[*]   → 取嵌套数组
+$.title          → 取字段</code></pre>
+  <p>列表规则用 <code>$.[*]</code>,字段规则用 <code>$.字段名</code>。这是最省事的一对,能覆盖绝大多数接口型站点。</p>
+
+  <h2>要计算就走 <code>@js</code></h2>
+  <p>规则以 <code>@js:</code> 或 <code>&lt;js&gt;…&lt;/js&gt;</code> 开头时,整段当 JavaScript 求值,<strong>最后一条产生值的语句</strong>就是结果。</p>
+  <pre><code>@js:result = java.ajax(url); JSON.parse(result).data.map(x =&gt; x.title).join('\n')</code></pre>
+
+  <h2>几个容易踩的点</h2>
+  <ul>
+    <li><strong>取不到先看是不是选错容器</strong>。列表规则取的是一个"每一项"的容器,不是整个列表。<code>class.book-list@tag.li</code> 和 <code>tag.li</code> 不是一回事。</li>
+    <li><strong>多个候选用 <code>||</code></strong>:<code>class.a@text||class.b@text</code> 取第一个有结果的。</li>
+    <li><strong>列表倒序加 <code>-</code> 前缀</strong>:<code>-class.list@tag.li</code>。</li>
+    <li><strong>相对地址不用自己拼</strong>。链接会按来源页地址自动绝对化;只有确实需要换域名时才在 <code>@js</code> 里处理。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>
