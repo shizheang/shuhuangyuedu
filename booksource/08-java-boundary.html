@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>方法与边界</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>08 方法与边界</h1>
+  <p class="lead"><code>java.*</code> 是一张<strong>白名单</strong>:手册里没有的名字,调用会当场抛错(不是静默返回空)。所以"用了却取到 undefined"这种排查思路在这里不成立 —— 报错就是没实现。</p>
+
+  <h2>网络</h2>
+  <table>
+    <tr><th>方法</th><th>说明</th></tr>
+    <tr><td><code>java.ajax(url)</code></td><td>发一次请求,返回响应正文;URL 后面同样能跟 <code>,{...}</code> 选项</td></tr>
+    <tr><td><code>java.ajaxAll([url1, url2])</code></td><td>并发发多次,返回响应数组(取正文用 <code>.body()</code>)</td></tr>
+    <tr><td><code>java.get(url, headers)</code> / <code>post(url, body, headers)</code> / <code>head(url)</code></td><td>带请求头的单次请求</td></tr>
+    <tr><td><code>java.connect(url)</code></td><td>低层连接(兼容用)</td></tr>
+    <tr><td><code>java.importScript(url)</code></td><td>拉一段远程 JS 并执行(远程库就这么用)</td></tr>
+    <tr><td><code>java.cacheFile(url)</code></td><td>下载并缓存一个文件,返回本地相对路径</td></tr>
+    <tr><td><code>java.webView(url)</code></td><td>用内置浏览器加载(要跑站点自己的 JS 时)</td></tr>
+    <tr><td><code>java.startBrowser(url)</code> / <code>startBrowserAwait(url)</code></td><td>同上,后者等页面结束再返回</td></tr>
+    <tr><td><code>java.open(url)</code> / <code>openUrl(url, mime)</code></td><td>交给系统打开(跳转 App / 浏览器)</td></tr>
+  </table>
+
+  <h2>解析</h2>
+  <table>
+    <tr><td><code>java.getString(rule)</code></td><td>用一条规则在<strong>当前内容</strong>上取值</td></tr>
+    <tr><td><code>java.getStringList(rule)</code></td><td>取值列表</td></tr>
+    <tr><td><code>java.getElements(rule)</code></td><td>取节点列表</td></tr>
+    <tr><td><code>java.setContent(html)</code></td><td>替换"即将返回的内容" —— 正文 <code>@js</code> 里做二次加工时用</td></tr>
+  </table>
+  <p>带 <code>Sync</code> 后缀(<code>getStringSync</code> / <code>getElementsSync</code>)的是同一件事的同步版,只在必须同步的上下文里用。</p>
+
+  <h2>登录与 cookie</h2>
+  <table>
+    <tr><td><code>java.getLoginInfo(key)</code> / <code>getLoginInfoMap()</code></td><td>读本源自己存的登录信息</td></tr>
+    <tr><td><code>java.putLoginInfo(key, value)</code> / <code>upLoginData(key, value)</code></td><td>写回本源自己的登录信息</td></tr>
+    <tr><td><code>java.getLoginHeader()</code> / <code>getLoginHeaderMap()</code></td><td>登录时站点回的那组请求头</td></tr>
+    <tr><td><code>java.getCookie(url, key)</code> / <code>setCookie</code> / <code>replaceCookie</code></td><td>本源自己的 cookie 夹</td></tr>
+    <tr><td><code>java.getWebCookie(url)</code> / <code>setWebCookie</code></td><td>内置浏览器里的 cookie</td></tr>
+  </table>
+
+  <h2>变量与身份</h2>
+  <table>
+    <tr><td><code>java.get(key)</code> / <code>java.put(key, value)</code></td><td>源自己的变量表(可落盘,跨章节保留)</td></tr>
+    <tr><td><code>java.getTag()</code> / <code>java.getSource()</code></td><td>当前请求标签 / 本源地址</td></tr>
+    <tr><td><code>java.getUserAgent()</code> / <code>getWebViewUA</code></td><td>本机 UA</td></tr>
+    <tr><td><code>java.randomUUID()</code></td><td>随机 UUID</td></tr>
+  </table>
+
+  <h2>文本与时间</h2>
+  <table>
+    <tr><td><code>java.htmlFormat(s)</code></td><td>HTML 整理</td></tr>
+    <tr><td><code>java.timeFormat(t)</code> / <code>timeFormatUTC(t)</code></td><td>时间戳 → <code>yyyy/MM/dd HH:mm</code>,或从一个时间字符串里解析</td></tr>
+    <tr><td><code>java.s2t(s)</code> / <code>java.t2s(s)</code></td><td>简繁互转</td></tr>
+    <tr><td><code>java.toNumChapter(s)</code></td><td>中文数字章节号 → 数字</td></tr>
+    <tr><td><code>java.toURL(s)</code></td><td>相对地址 → 绝对地址</td></tr>
+  </table>
+
+  <h2>界面与交互</h2>
+  <table>
+    <tr><td><code>java.toast(msg)</code> / <code>longToast(msg)</code> / <code>log(msg)</code></td><td>提示与日志(<code>log</code> 进调试页)</td></tr>
+    <tr><td><code>java.setClipboard(text)</code> / <code>copyText(text)</code></td><td>复制到剪贴板</td></tr>
+    <tr><td><code>java.getVerificationCode(...)</code></td><td>要用户输入一次校验码并返回</td></tr>
+    <tr><td><code>java.refreshBookToc()</code> / <code>refreshContent()</code> / <code>refreshBookInfo()</code></td><td>让宿主重新取一次对应的那一段</td></tr>
+  </table>
+
+  <h2>源脚本碰得到什么、碰不到什么</h2>
+  <ul>
+    <li><strong>能出网</strong> —— 任何域都可以(取数据、取脚本都不问)。但<strong>环回、局域网、云元数据地址一律拒</strong>:不能拿本软件当跳板去打内网。</li>
+    <li><strong>能用本源自己的凭据</strong>。别的源的账号密码 / cookie 拿不到;真要借用,第一次会问用户一次,结果记在「设置 → 网络设置 → 访问」。</li>
+    <li><strong>能读写本源自己的变量</strong>(<code>java.put</code> / <code>java.get</code>),跨章节、跨重启都在。</li>
+    <li><strong>碰不到界面</strong>:改不了主题、跳不了页面、点不了按钮(除了上面那几个明确开放的动作,比如复制到剪贴板)。</li>
+    <li><strong>碰不到别的源的数据</strong> —— 变量、登录信息、cookie 都是按源隔离的。</li>
+  </ul>
+  <p>写源时记住一条:规则是在一个**隔出来的环境**里跑的。手册没写的能力就是没有,不要靠"试试看"去猜。</p>
+</usehtml></article>
+</body>
+</html>

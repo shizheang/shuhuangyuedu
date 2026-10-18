@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>基本</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>01 基本:一个源最少要有哪些字段</h1>
+  <p class="lead">一个书源就是一段 JSON。下面这份只填了「搜索 → 详情 → 目录 → 正文」四段,已经能读完整的书;其余字段都是**可选增强**。先让这四段跑通,再回头加别的。</p>
+
+  <h2>最小可用的一个源</h2>
+  <pre><code>{
+  "bookSourceUrl": "https://example.com",
+  "bookSourceName": "示例源",
+  "searchUrl": "https://example.com/search?q={{key}}",
+  "ruleSearch": {
+    "bookList": "class.result-list@tag.li",
+    "name": "tag.h3@text",
+    "author": "class.author@text",
+    "bookUrl": "tag.a@href"
+  },
+  "ruleBookInfo": { "tocUrl": "class.btn-mulu@href" },
+  "ruleToc": {
+    "chapterList": "id.list@tag.dd",
+    "chapterName": "tag.a@text",
+    "chapterUrl": "tag.a@href"
+  },
+  "ruleContent": { "content": "id.content@html" }
+}</code></pre>
+  <p>这四段的字段名是固定的:<code>ruleSearch</code>、<code>ruleBookInfo</code>、<code>ruleToc</code>、<code>ruleContent</code>;发现页那一段叫 <code>ruleExplore</code>。每一段都是**对象**,里面再按 <code>name</code> / <code>author</code> 这种键填规则。</p>
+
+  <h2>源本身的字段</h2>
+  <ul>
+    <li><code>bookSourceUrl</code> —— <strong>必填,且唯一</strong>。它就是身份:再导入一次同地址的源 = 覆盖,不是新增一条。</li>
+    <li><code>bookSourceName</code> —— <strong>必填</strong>,可以重名。书架换源、搜索结果的"来源"里显示的就是它。</li>
+    <li><code>bookSourceGroup</code> —— 分组,只影响书源列表怎么归类。</li>
+    <li><code>bookUrlPattern</code> —— 书名页地址的正则。可不填;填了之后,在浏览器里打开一本书的页面时,本软件才知道"这本书该用哪个源打开"。</li>
+    <li><code>header</code> —— 访问该站点时统一带上的请求头(JSON)。见 <a href="03-url.html">03 地址</a>。</li>
+    <li><code>loginUrl</code> / <code>loginUi</code> —— 账号型源用。见 <a href="07-login-crypto.html">07 登录</a>。</li>
+    <li><code>jsLib</code> —— 一段**先于所有规则执行**的 JS。远程库(填一个地址)也行,它会在源初始化时被拉下来。</li>
+    <li><code>variable</code> —— 源自己的一串变量(JSON),规则里用 <code>@get:</code> / <code>{{}}</code> 取。见 <a href="02-syntax.html">02 语法</a>。</li>
+    <li><code>concurrentRate</code> —— 并发/间隔限制,形如 <code>1/1000</code>(每秒 1 次、间隔 1000 毫秒)。不填就按全局设置。</li>
+    <li><code>enabledExplore</code> —— 发现页开关。没填 <code>exploreUrl</code> 的源,这一项设 true 也没用。</li>
+  </ul>
+
+  <h2>写完之后怎么验</h2>
+  <p>导入后在<strong>源调试页</strong>里逐段跑:搜索 → 详情 → 目录 → 正文。哪一段空,就从那一段往前看一页。四个最常见的"空":</p>
+  <ul>
+    <li>返回的是 JSON 却用了 CSS 规则(或反过来)—— 先看原始响应的第一个字符是 <code>&lt;</code> 还是 <code>{</code>;</li>
+    <li>列表规则取成了"整张表"而不是"每一行" —— <a href="04-search-explore.html">04 搜索与发现</a> 里专门讲这条;</li>
+    <li>链接是相对地址,而你没让软件去补 —— 默认会按来源页自动补全;</li>
+    <li>站点要求登录或被墙 —— 那一段会给出请求地址与状态码。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

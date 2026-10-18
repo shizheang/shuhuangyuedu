@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>搜索与发现</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>04 搜索与发现</h1>
+  <p class="lead">这两段结构一模一样:<strong>一个列表规则先切出"每一项",再由一串字段规则在每一项里面取</strong>。九成的"搜不到"都出在第一步 —— 列表规则切错了层。</p>
+
+  <h2>搜索</h2>
+  <pre><code>"searchUrl": "https://example.com/search?q={{key}}&amp;page={{page}}",
+"ruleSearch": {
+  "bookList": "class.result-list@tag.li",
+  "name": "tag.h3@text",
+  "author": "class.author@text",
+  "kind": "class.tag@text",
+  "wordCount": "class.words@text",
+  "lastChapter": "class.latest@text",
+  "intro": "class.intro@text",
+  "coverUrl": "tag.img@src",
+  "bookUrl": "tag.a@href"
+}</code></pre>
+
+  <h3>列表规则取的是「一个条目」</h3>
+  <p><code>class.result-list@tag.li</code> 的意思是"先找到结果列表这个容器,再取它下面的每一个 <code>li</code>",结果是一串条目。如果写成 <code>tag.li</code>,那是"页面上所有 li" —— 混进导航条、页脚,搜索页会出来一堆垃圾条目。</p>
+  <p>判断标准:列表规则取出来的第一个条目里,能单独取到书名和链接,就算切对了。</p>
+
+  <h3>字段规则在「单个条目」里跑</h3>
+  <p>所以字段规则不要再写容器:<code>tag.h3@text</code> 对,<code>class.result-list.0@tag.h3@text</code> 错(那样每一行都会取到第一条的数据)。</p>
+
+  <h3>必填与选填</h3>
+  <ul>
+    <li><code>bookList</code> / <code>name</code> / <code>bookUrl</code> —— 缺一不可;</li>
+    <li><code>author</code> / <code>kind</code> / <code>intro</code> / <code>coverUrl</code> / <code>wordCount</code> / <code>lastChapter</code> / <code>updateTime</code> —— 取不到就是空,不影响搜索出结果;</li>
+    <li><code>checkKeyWord</code> —— 用来判断"这一页是不是被站点换成了验证页/广告页",命中就丢弃。</li>
+  </ul>
+
+  <h2>发现</h2>
+  <pre><code>"exploreUrl": "玄幻::https://example.com/list/xuanhuan?page={{page}}\n都市::https://example.com/list/dushi?page={{page}}"</code></pre>
+  <p><code>exploreUrl</code> 每行一条分类,格式是 <code>分类名::地址</code>。分类名会出现在发现页的分类条里。</p>
+
+  <h3>需要排版的写法</h3>
+  <p>想给某个分类单独设宽度/换行时,可以写成 JSON 数组:</p>
+  <pre><code>[
+  {"title":"今日限免","url":"https://example.com/free?page={{page}}","style":{"layout_flexGrow":1}},
+  {"title":"频道金榜","url":"https://example.com/rank?o={{ (page-1)*25 }}"}
+]</code></pre>
+  <p><code>style</code> 里的 <code>layout_flexGrow</code> / <code>layout_flexGrow</code> / <code>layout_wrapBefore</code> 等键与发现页的布局一一对应;不写就自动排。</p>
+
+  <h3><code>ruleExplore</code> 与 <code>ruleSearch</code> 的区别</h3>
+  <p>字段名几乎一样,<strong>但没有 <code>checkKeyWord</code></strong>(发现页不是在搜关键词)。其余照抄搜索那段即可 —— 大部分站的列表页和搜索页是同一个模板。</p>
+
+  <h3>什么时候发现页要用 <code>@js</code></h3>
+  <p>分类不是写死的,而是要先请求一个接口才拿得到(常见于 App 接口型站点)。这时 <code>exploreUrl</code> 整个写成 <code>@js:</code>,返回 <code>名称::地址</code> 拼成的多行字符串,或者上面那种 JSON 数组。</p>
+
+  <h2>排错顺序</h2>
+  <ol>
+    <li>地址对不对 —— 调试页会显示实际请求的完整 URL(含 <code>{{key}}</code> / <code>{{page}}</code> 替换后的值);</li>
+    <li>响应是 HTML 还是 JSON —— 第一个字符是 <code>&lt;</code> 还是 <code>{</code>;</li>
+    <li>列表规则切出来的条目数对不对(应该是"一页的条数",不是 0 也不是几百);</li>
+    <li>再看字段。字段空先把它换成 <code>@html</code> 看看那个节点里到底有什么。</li>
+  </ol>
+</usehtml></article>
+</body>
+</html>

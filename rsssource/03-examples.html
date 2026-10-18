@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>示例</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>03 四个能直接改的示例</h1>
+  <p class="lead">下面每个例子都是完整可导入的。把 <code>sourceUrl</code> 和规则换成你自己的就能用。</p>
+
+  <h2>① 标准 RSS:两行</h2>
+  <pre><code>{
+  "sourceUrl": "https://example.com/feed.xml",
+  "sourceName": "某站 RSS"
+}</code></pre>
+  <p>就这样。RSS / Atom 都认,规则一条都不用写。</p>
+
+  <h2>② 网页列表型:加摘要与正文</h2>
+  <pre><code>{
+  "sourceUrl": "https://example.com/blog",
+  "sourceName": "某站博客",
+  "sortUrl": "最新::https://example.com/blog\n归档::https://example.com/blog/archive",
+  "ruleNextPage": "class.pager@class.next@href",
+  "ruleArticles": "class.post-list@tag.li",
+  "ruleTitle": "tag.h2@text",
+  "ruleLink": "tag.h2@tag.a@href",
+  "rulePubDate": "class.date@text",
+  "ruleImage": "tag.img@src",
+  "ruleDescription": "class.excerpt@text",
+  "ruleContent": "class.article-body@html"
+}</code></pre>
+  <p>注意 <code>ruleArticles</code> 取的是 <code>li</code>(每一篇),后面几个字段都不带容器。</p>
+
+  <h2>③ JSON 接口型</h2>
+  <pre><code>{
+  "sourceUrl": "https://example.com/api/feed",
+  "sourceName": "某站接口",
+  "enableJs": true,
+  "ruleArticles": "$.data.list[*]",
+  "ruleTitle": "$.title",
+  "ruleLink": "$.url",
+  "rulePubDate": "$.published_at",
+  "ruleImage": "$.cover",
+  "ruleDescription": "$.summary",
+  "ruleNextPage": "PAGE"
+}</code></pre>
+  <p>列表规则用 <code>$.data.list[*]</code>,字段规则只写 <code>$.字段名</code>。<code>ruleNextPage</code> 写 <code>PAGE</code> 表示"按 <code>sortUrl</code> 里的 <code>{{page}}</code> 翻页"。</p>
+
+  <h2>④ 单 url 源:整页当一篇读</h2>
+  <pre><code>{
+  "sourceUrl": "https://example.com/daily",
+  "sourceName": "每日更新",
+  "singleUrl": true,
+  "loadWithBaseUrl": true
+}</code></pre>
+  <p>软件会用内置浏览器把这一页整个加载出来当正文 —— 页面自己的脚本照跑,内嵌视频也能播。适合"整站就一个页面"或者"想读的就是这一页"。</p>
+
+  <h2>给正文配样式</h2>
+  <p><code>style</code> 字段是<strong>正文的 CSS</strong>,解析出来的 HTML 会挂在这套样式下渲染:</p>
+  <pre><code>"style": ".article-body{line-height:1.8;font-size:16px}
+          .article-body img{max-width:100%;height:auto}
+          .article-body p{margin:10px 0}"</code></pre>
+  <p>不写就用软件自带的默认样式(图片与视频不溢出、正文有行距)。想改字体、段距、图片圆角,都写在这里。</p>
+
+  <h2>导进去之后</h2>
+  <ul>
+    <li>订阅页顶部是<strong>分类条</strong>(来自 <code>sortUrl</code>);没有分类就直接是列表;</li>
+    <li>点开一篇:有 <code>ruleContent</code> 就在软件内解析,没有就打开原网页;</li>
+    <li>列表拉不到内容时,先在浏览器里打开 <code>sourceUrl</code> 看一眼返回的到底是什么 —— 这是最快的一步。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

@@ -2,7 +2,7 @@
   "sourceUrl": "https://cdn.jsdelivr.net/gh/shizheang/shuhuangyuedu@main/",
   "sourceName": "书源与订阅源教程",
   "sourceGroup": "教程",
-  "sourceComment": "教你怎么写这个软件能用的书源与订阅源。按「写一个源的真实顺序」排:取数 → 解析 → 凭据 → 加密 → 边界。遇到没实现的方法会当场报错,写之前先看「边界」那一页。",
+  "sourceComment": "这个软件能用的书源与订阅源怎么写。书源八页(基本 → 语法 → 地址 → 搜索发现 → 详情目录 → 正文 → 登录加密 → 方法与边界),订阅源三页(流程 → 字段 → 示例)。手册里没有的 java.* 方法调了会当场抛错,写之前先看「方法与边界」。",
   "enabled": true,
   "type": 0,
   "singleUrl": false,
@@ -18,5 +18,5 @@
   "loadWithBaseUrl": true,
   "enabledCookieJar": false,
   "articleStyle": 0,
-  "style": "usehtml{display:block;line-height:1.75;font-size:15px} usehtml h1{font-size:20px;margin:0 0 12px} usehtml .lead{color:#666;margin:0 0 20px} usehtml h2{font-size:16px;margin:22px 0 8px;padding-left:8px;border-left:3px solid #4a90d9} usehtml p{margin:8px 0} usehtml ul,usehtml ol{margin:8px 0;padding-left:22px} usehtml li{margin:4px 0} usehtml code{background:#f2f3f5;padding:1px 5px;border-radius:4px;font-size:13px} usehtml pre{background:#f2f3f5;padding:10px 12px;border-radius:8px;overflow:auto} usehtml pre code{background:none;padding:0}"
+  "style": "usehtml{display:block;line-height:1.75;font-size:15px} usehtml h1{font-size:20px;margin:0 0 12px} usehtml h3{font-size:15px;margin:18px 0 6px} usehtml .lead{color:#666;margin:0 0 20px} usehtml h2{font-size:16px;margin:22px 0 8px;padding-left:8px;border-left:3px solid #4a90d9} usehtml p{margin:8px 0} usehtml ul,usehtml ol{margin:8px 0;padding-left:22px} usehtml li{margin:4px 0} usehtml a{color:#4a90d9;text-decoration:none} usehtml code{background:#f2f3f5;padding:1px 5px;border-radius:4px;font-size:13px} usehtml pre{background:#f2f3f5;padding:10px 12px;border-radius:8px;overflow:auto} usehtml pre code{background:none;padding:0} usehtml table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px} usehtml th,usehtml td{border:1px solid #e4e6ea;padding:6px 8px;text-align:left;vertical-align:top} usehtml th{background:#f7f8fa;font-weight:600}"
 }

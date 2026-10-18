@@ -1,32 +1,50 @@
 [
   {
     "step": 1,
-    "title": "01 取数:java.ajax 与它的兄弟",
-    "summary": "java.ajax / get / post / head / connect 的区别,以及什么时候必须用 ajax",
-    "url": "01-fetch.html"
+    "title": "01 基本:一个源最少要有哪些字段",
+    "summary": "书源地址、名称、分组、登录地址、书籍地址正则、请求头 —— 每一项什么时候必填",
+    "url": "01-basic.html"
   },
   {
     "step": 2,
-    "title": "02 解析:CSS、@Json 与 @js",
-    "summary": "同一条规则里三种写法怎么选;取不到时先看什么",
-    "url": "02-parse.html"
+    "title": "02 语法:一条规则从哪开始写",
+    "summary": "默认规则 / CSS / JSONPath / XPath / JS / 正则替换,以及 && || %% 与 @put @get {{}}",
+    "url": "02-syntax.html"
   },
   {
     "step": 3,
-    "title": "03 凭据:登录信息与请求头",
-    "summary": "getLoginInfoMap / getLoginHeader / getHeaderMap,以及账号型源怎么搭",
-    "url": "03-login.html"
+    "title": "03 地址:GET、POST、请求头与翻页",
+    "summary": "地址后面那串 JSON 能写什么;{{key}} 与 {{page}} 怎么算;相对地址谁去补",
+    "url": "03-url.html"
   },
   {
     "step": 4,
-    "title": "04 加密:摘要、HMAC 与对称加解密",
-    "summary": "md5Encode / HMacHex / createSymmetricCrypto 的参数口径",
-    "url": "04-crypto.html"
+    "title": "04 搜索与发现",
+    "summary": "列表规则取的是「每一项」的容器;字段规则在每一项里跑;发现页的两种写法",
+    "url": "04-search-explore.html"
   },
   {
     "step": 5,
-    "title": "05 边界:源脚本能碰什么",
-    "summary": "能出网、能读源自己的数据;不能碰文件与界面。写源前先看这一页",
-    "url": "05-boundary.html"
+    "title": "05 详情与目录",
+    "summary": "详情页字段、预处理 init,以及目录的卷、反序与下一页",
+    "url": "05-detail-toc.html"
+  },
+  {
+    "step": 6,
+    "title": "06 正文",
+    "summary": "正文规则怎么写才不漏段;图片要带请求头时怎么给",
+    "url": "06-content.html"
+  },
+  {
+    "step": 7,
+    "title": "07 登录、凭据与加密",
+    "summary": "登录地址、登录信息、请求头里的凭据,以及摘要/对称加解密的口径",
+    "url": "07-login-crypto.html"
+  },
+  {
+    "step": 8,
+    "title": "08 方法与边界",
+    "summary": "java.* 常用方法表,以及源脚本能碰什么、碰不到什么",
+    "url": "08-java-boundary.html"
   }
 ]

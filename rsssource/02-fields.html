@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>字段表</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>02 字段表</h1>
+  <p class="lead">订阅源一共二十来个字段,常用的只有八个。下面按"要不要填"分组。</p>
+
+  <h2>必填</h2>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>sourceUrl</code></td><td><strong>唯一标识</strong>。再导入一次同地址 = 覆盖,不是新增。</td></tr>
+    <tr><td><code>sourceName</code></td><td>列表里显示的名字,可以重名。</td></tr>
+  </table>
+
+  <h2>列表型源必填</h2>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>ruleArticles</code></td><td>列表规则,取的是<strong>每一篇</strong>的容器。填了它,这个源就不再走"标准 RSS"那条默认解析。</td></tr>
+    <tr><td><code>ruleTitle</code></td><td>标题。填了 <code>ruleArticles</code> 就必须有它。</td></tr>
+    <tr><td><code>ruleLink</code></td><td>文章地址。同样必填 —— 它决定"点开之后读什么"。</td></tr>
+  </table>
+
+  <h2>选填</h2>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>rulePubDate</code></td><td>时间。能解析成日期就用于排序,不能就原样显示。</td></tr>
+    <tr><td><code>ruleImage</code></td><td>列表缩略图。相对地址会按 <code>sourceUrl</code> 补全。</td></tr>
+    <tr><td><code>ruleDescription</code></td><td>列表页上的摘要。有它就不用打开文章也能看个大概。</td></tr>
+    <tr><td><code>ruleContent</code></td><td>正文规则。<strong>不填 = 点开时打开原网页</strong>;填了就在软件内解析。</td></tr>
+    <tr><td><code>ruleNextPage</code></td><td>翻页。写成地址规则,或者字面量 <code>PAGE</code>(按 <code>sortUrl</code> 的 <code>{{page}}</code> 翻)。</td></tr>
+    <tr><td><code>sortUrl</code></td><td>分类,一行一个 <code>名称::地址</code>。</td></tr>
+    <tr><td><code>sourceGroup</code></td><td>分组,只影响订阅列表怎么归类。</td></tr>
+    <tr><td><code>sourceIcon</code></td><td>图标地址。</td></tr>
+    <tr><td><code>sourceComment</code></td><td>给源写一段说明,会显示在源详情里。</td></tr>
+  </table>
+
+  <h2>开关</h2>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>singleUrl</code></td><td>单 url 源:整站当一篇文章读,不解析列表。</td></tr>
+    <tr><td><code>loadWithBaseUrl</code></td><td>用内置浏览器按 <code>sourceUrl</code> 加载(WebView 型源)。</td></tr>
+    <tr><td><code>enableJs</code></td><td>允许规则里的 JS。默认关;规则里要用 <code>@js:</code> 就打开。</td></tr>
+    <tr><td><code>articleStyle</code></td><td>列表样式,0~4。只是外观,不影响解析。</td></tr>
+    <tr><td><code>contentWhitelist</code> / <code>contentBlacklist</code></td><td>正文地址的白/黑名单(按域名)。</td></tr>
+  </table>
+
+  <h2>规则的写法和书源完全一样</h2>
+  <p><code>ruleArticles</code> / <code>ruleTitle</code> / <code>ruleContent</code> 这些字段里的规则串,用的是<strong>同一套语法</strong>:默认规则、<code>@css:</code>、<code>@Json:</code>、<code>@XPath:</code>、<code>@js:</code>、<code>##正则##替换</code>、<code>&amp;&amp;</code> / <code>||</code>。</p>
+  <p>区别只有一个:订阅源<strong>没有"每一项"这层作用域提示</strong> —— <code>ruleArticles</code> 切出来的就是每一篇,<code>ruleTitle</code> 等都在<strong>单篇</strong>里取。所以字段规则不要再写容器。</p>
+</usehtml></article>
+</body>
+</html>

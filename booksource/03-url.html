@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>地址</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>03 地址:GET、POST、请求头与翻页</h1>
+  <p class="lead">搜索地址、发现地址、目录下一页地址,都是同一个写法:<strong>一个 URL,后面可以跟一段逗号开头的 JSON 选项</strong>。不写选项就是一个普通 GET。</p>
+
+  <h2>形状</h2>
+  <pre><code>https://example.com/search?q={{key}}&amp;page={{page}}
+https://example.com/api/search,{"method":"POST","body":"kw={{key}}&amp;page={{page}}","charset":"utf-8"}</code></pre>
+  <p>分隔符是<strong>逗号后面紧跟 <code>{</code></strong>。所以 <code>?a=1,b=2</code> 这种 query 里的逗号不会被误切开。</p>
+
+  <h2>选项能写什么</h2>
+  <ul>
+    <li><code>method</code> —— <code>POST</code> / <code>HEAD</code>;不写或写别的都按 <code>GET</code>;</li>
+    <li><code>body</code> —— 请求体。是字符串就原样发;不是字符串会先按 JSON 序列化;</li>
+    <li><code>headers</code> —— 对象;写成 JSON <strong>字符串</strong>也认(源仓库里 <code>JSON.stringify({...})</code> 很常见);</li>
+    <li><code>charset</code> —— 非 UTF-8 的站要写(如 <code>gbk</code>)。它同时决定**表单体**按哪种编码拼;</li>
+    <li><code>webView</code> —— 非空时改用内置浏览器加载这一页(需要跑站点自己的 JS 才拿得到内容时用);</li>
+    <li><code>webViewDelayTime</code> —— 用 webView 时再等多久(毫秒)才开始取;</li>
+    <li><code>retry</code> —— 失败重试次数;</li>
+    <li><code>proxy</code> —— 走代理,如 <code>http://127.0.0.1:1080</code>。</li>
+  </ul>
+
+  <h2>源的统一请求头 vs 单次请求的 header</h2>
+  <p>书源顶层那个 <code>header</code> 字段对**该源的每一次请求**都生效;单次请求 JSON 里的 <code>headers</code> 只对那一次生效,并且会<strong>覆盖</strong>同名键。所以:</p>
+  <ul>
+    <li>站点固定要的 UA / Referer → 写进源顶层的 <code>header</code>;</li>
+    <li>只有某个接口要的 <code>X-Requested-With</code> / 签名头 → 写在那一条地址的选项里。</li>
+  </ul>
+
+  <h2><code>{{key}}</code> 与 <code>{{page}}</code></h2>
+  <p>在<strong>搜索 / 发现地址</strong>里,<code>{{}}</code> 只当 JS 求值。两个变量是预设的:<code>key</code>(搜索词)与 <code>page</code>(页码,<strong>从 1 开始</strong>)。</p>
+  <pre><code>{{key}}                → 原样
+{{java.encodeURI(key)}} → 先编码
+{{(page-1)*20}}        → 偏移量式的分页
+{{page-1 == 0 ? "" : page}} → 第一页不带页码</code></pre>
+  <p>最后一行是常见需求:很多站的第一页地址里没有 <code>page</code>,而第二页开始才有。</p>
+
+  <h2>相对地址谁来补</h2>
+  <p>你不用拼。<strong>带 <code>isUrl</code> 语义的字段</strong>(书籍地址、封面、目录下一页、正文下一页)会按**当前页的地址**自动绝对化:<code>/book/1</code> → <code>https://example.com/book/1</code>。只有真要换域名时才需要自己在 <code>@js</code> 里处理。</p>
+
+  <h2>一次取多个地址</h2>
+  <p>发现地址与目录下一页都支持<strong>数组</strong>(JSON 数组,或把多个地址用 <code>&amp;&amp;</code> 连起来)。目录下一页的规则返回空串 / 空数组时就停止往后翻。</p>
+</usehtml></article>
+</body>
+</html>

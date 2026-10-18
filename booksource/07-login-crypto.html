@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>登录与加密</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>07 登录、凭据与加密</h1>
+  <p class="lead">要登录的源分两种:<strong>地址型</strong>(给你一个网页,自己登)与 <strong>JS 型</strong>(软件弹一个输入面板,源脚本拿你填的值去换 token)。两者不会混用 —— 选错的话表现是"点了登录什么都不发生"。</p>
+
+  <h2>地址型:只写 <code>loginUrl</code></h2>
+  <pre><code>"loginUrl": "https://example.com/login"</code></pre>
+  <p>软件会打开这个页面,你在里面登录(扫码、验证码、第三方都行),登录态按站点的规则存进本源的 cookie 夹。后续请求自动带上。</p>
+  <p>想让软件在登录后<strong>检查一下到底成没成</strong>,写 <code>loginCheckJs</code>:它拿到登录后的页面,抛错或返回值表示失败。</p>
+
+  <h2>JS 型:再写 <code>loginUi</code></h2>
+  <pre><code>"loginUi": "[{\"name\":\"账号\",\"type\":\"text\"},{\"name\":\"密码\",\"type\":\"password\"}]"</code></pre>
+  <p><code>loginUi</code> 是这个面板要问用户哪些字段。用户填完之后,值存在<strong>本源自己的</strong>登录信息里,规则里这样取:</p>
+  <pre><code>java.getLoginInfo("账号")
+java.getLoginInfoMap()["密码"]</code></pre>
+  <p>拿到之后自己去换 token,再存回去给后面用:</p>
+  <pre><code>var token = JSON.parse(java.post(url, "user=" + java.getLoginInfo("账号"))).token
+java.putLoginInfo("token", token)</code></pre>
+  <p><strong>只还回本源</strong>是硬规则:源 A 读不到源 B 填的账号密码。真要借用,第一次会弹窗问用户一次,选择结果记在「设置 → 网络设置 → 访问」的放行清单里。</p>
+
+  <h2>把凭据放进请求头</h2>
+  <pre><code>"header": "@js:(() =&gt; { var t = java.getLoginInfo('token')
+  return JSON.stringify({ 'Authorization': 'Bearer ' + t }) })()"</code></pre>
+  <p><code>header</code> 写成 <code>@js:</code> 时每次请求都重新求值,所以 token 换掉也不用改源。<code>getLoginHeader()</code> / <code>getLoginHeaderMap()</code> 取的是登录时站点自己回的那组头。</p>
+
+  <h2>加密</h2>
+  <p>接口型站点常把参数签名或加密。常用的一批(都是同步的、纯计算):</p>
+  <table>
+    <tr><th>方法</th><th>说明</th></tr>
+    <tr><td><code>java.md5Encode(s)</code></td><td>MD5 十六进制(32 位)</td></tr>
+    <tr><td><code>java.md5Encode16(s)</code></td><td>MD5 取中间 16 位</td></tr>
+    <tr><td><code>java.sha256Hex(s)</code></td><td>SHA-256 十六进制</td></tr>
+    <tr><td><code>java.digestHex(s, "SHA-1")</code></td><td>指定摘要算法</td></tr>
+    <tr><td><code>java.HMacHex(data, "HmacSHA256", key)</code></td><td>HMAC 十六进制,<strong>参数顺序是 (数据, 算法, 密钥)</strong></td></tr>
+    <tr><td><code>java.base64Encode(s)</code> / <code>base64Decode(s)</code></td><td>Base64 编 / 解</td></tr>
+    <tr><td><code>java.hexEncodeToString(bytes)</code> / <code>hexDecodeToString(s)</code></td><td>十六进制编 / 解</td></tr>
+    <tr><td><code>java.strToBytes(s)</code></td><td>字符串 → 字节数组(UTF-8)</td></tr>
+    <tr><td><code>java.encodeURI(s)</code> / <code>decodeURI(s)</code></td><td>URL 编 / 解</td></tr>
+  </table>
+  <p>对称加密不要拼成"一条龙",用工厂对象:</p>
+  <pre><code>var c = java.createSymmetricCrypto("AES/ECB/PKCS5Padding", java.strToBytes(key))
+c.encryptBase64(明文)      // 加密 → Base64
+c.decryptStr(密文)</code></pre>
+  <p>也有现成的快捷方法 <code>java.aesEncodeToBase64String(data, key, transformation, iv)</code> 这一族。<strong>密钥与 iv 既可以给字符串(按 UTF-8),也可以给字节数组</strong> —— 站点给的是 32 字节密钥时,先 <code>strToBytes</code> 再传。</p>
+
+  <h2>排查</h2>
+  <ul>
+    <li>接口回"签名错误" → 先把拼出来的签名与浏览器里那份<strong>逐字</strong>比一遍(参数顺序、是不是少了一层 URL 编码);</li>
+    <li>解密出来是乱码 → 十有八九是 <strong>iv / 模式</strong>传错,或者密钥被当成了字符串;</li>
+    <li>用到手册里没有的方法 → 会当场抛错,不会静默返回 undefined。看 <a href="08-java-boundary.html">08 方法与边界</a> 那张表。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

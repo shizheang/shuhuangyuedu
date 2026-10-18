@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>解析流程</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>01 解析流程:先看有没有列表规则</h1>
+  <p class="lead">订阅源的判断只有一个岔路口:<strong><code>ruleArticles</code> 空不空</strong>。空的就是标准 RSS,软件用默认规则拆;不空的就按你写的规则拆。这一步决定了后面所有事。</p>
+
+  <h2>一次订阅的完整顺序</h2>
+  <ol>
+    <li>请求 <code>sourceUrl</code>(分类里点了某个分类时,请求的是分类的地址);</li>
+    <li>看 <code>ruleArticles</code>:
+      <ul>
+        <li><strong>空</strong> → 当成标准 RSS/Atom,用默认字段映射解析;</li>
+        <li><strong>不空</strong> → 用这条规则切出"每一篇文章";</li>
+      </ul>
+    </li>
+    <li>再对每一篇取 <code>ruleTitle</code> / <code>rulePubDate</code> / <code>ruleImage</code> / <code>ruleLink</code>;</li>
+    <li>看 <code>ruleDescription</code>:有就取列表页上的摘要;</li>
+    <li>看 <code>ruleContent</code>:有就取正文,没有就打开原网页。</li>
+  </ol>
+
+  <h2>由此分成三种源</h2>
+  <h3>① 标准 RSS:只填名称和地址</h3>
+  <pre><code>{ "sourceUrl": "https://example.com/feed.xml", "sourceName": "某站 RSS" }</code></pre>
+  <p>绝大多数 RSS/Atom 都属于这一档。规则一个都不用写,写了反而可能把默认行为顶掉。</p>
+
+  <h3>② 有列表 + 有描述</h3>
+  <p>站点没有 RSS,但列表页上"标题 + 摘要"都齐了。列表页直接当订阅源用,点进去打开原网页。</p>
+  <pre><code>"ruleArticles": "class.post-list@tag.li",
+"ruleTitle": "tag.a@text",
+"ruleLink": "tag.a@href",
+"ruleDescription": "class.excerpt@text"</code></pre>
+
+  <h3>③ 有列表、没有描述</h3>
+  <p>同上,只是列表页太素。补一条 <code>ruleContent</code> 就能在软件里直接读:</p>
+  <pre><code>"ruleArticles": "class.post-list@tag.li",
+"ruleTitle": "tag.a@text",
+"ruleLink": "tag.a@href",
+"ruleContent": "content@html"</code></pre>
+
+  <h2>分类:<code>sortUrl</code></h2>
+  <p>一行一个分类,格式是 <code>分类名::地址</code>:</p>
+  <pre><code>"sortUrl": "最新::https://example.com/latest\n热榜::https://example.com/hot"</code></pre>
+  <p>分类不是写死的、要先请求接口才拿得到时,<code>sortUrl</code> 整段写成 <code>@js:</code>,返回同样格式的多行字符串。分类地址里可以带 <code>{{page}}</code>。</p>
+
+  <h2>翻页:<code>ruleNextPage</code></h2>
+  <p>有两个含义,别混:</p>
+  <ul>
+    <li>写成一个<strong>地址规则</strong>(如 <code>class.next@href</code>)—— 从列表页里取"下一页"的链接;</li>
+    <li>写成字面量 <code>PAGE</code> —— 表示"按 <code>sortUrl</code> 里的 <code>{{page}}</code> 翻页",软件把页码加一重发。</li>
+  </ul>
+  <p>两者都返回空就走到底了。</p>
+
+  <h2>单 url 源</h2>
+  <p>整个站的内容就在一个页面上(或者你想把某一页当"订阅"读)。把 <code>singleUrl</code> 设成 <code>true</code>,再加上 <code>loadWithBaseUrl</code>,软件会用内置浏览器<strong>把这一页整个加载出来</strong>当文章读 —— 页面自己的脚本照跑,视频也能播。</p>
+  <p>这一档不解析列表,所以 <code>ruleArticles</code> 之类都不需要。</p>
+
+  <h2>排查顺序</h2>
+  <ol>
+    <li>在浏览器里直接打开 <code>sourceUrl</code> —— 返回的是 RSS 还是网页;</li>
+    <li>如果是网页却把 <code>ruleArticles</code> 留空,那会被当成坏的 RSS,列表一定是空的;</li>
+    <li>列表有但点进去空白 → 看 <code>ruleLink</code> 取的是不是正文地址;</li>
+    <li>分类条不出现 → 看 <code>sortUrl</code> 的格式(冒号是不是全角、有没有换行)。</li>
+  </ol>
+</usehtml></article>
+</body>
+</html>

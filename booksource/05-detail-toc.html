@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>详情与目录</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>05 详情与目录</h1>
+  <p class="lead">详情页不是必填的一段:什么都不写,软件会沿用搜索页取到的书名、作者和封面。写它通常是为了拿到<strong>目录地址</strong>,或者页面上的简介比搜索列表里全。</p>
+
+  <h2>详情:<code>ruleBookInfo</code></h2>
+  <pre><code>"ruleBookInfo": {
+  "name": "class.book-info@tag.h1@text",
+  "author": "class.book-info@class.author@text",
+  "intro": "class.intro@html",
+  "kind": "class.tags@text",
+  "lastChapter": "class.latest@tag.a@text",
+  "coverUrl": "class.pic@tag.img@src",
+  "wordCount": "class.words@text",
+  "tocUrl": "class.btn-mulu@href"
+}</code></pre>
+  <ul>
+    <li><code>tocUrl</code> —— 目录页地址。<strong>只支持单个地址</strong>;不写就认为"这本书的目录和详情在同一个页面上"。</li>
+    <li><code>canReName</code> —— 规则不为空、且详情页也真取到了书名/作者时,<strong>用详情页的覆盖搜索页的</strong>。有些站搜索列表里的书名是缩写的,靠它纠正。</li>
+    <li><code>init</code> —— 预处理。整个详情页只跑一次,结果供上面这些字段用(见下)。</li>
+  </ul>
+
+  <h3><code>init</code>:先算一次,后面直接取</h3>
+  <p>当详情数据来自一个接口、或者要在一堆脚本里翻 JSON 时,先把它算成对象,后面的字段就只写键名:</p>
+  <pre><code>"init": "&lt;js&gt;JSON.parse(java.ajax(baseUrl.replace('/book/','/api/book/')))&lt;/js&gt;",
+"name": "name",
+"author": "author",
+"intro": "intro",
+"tocUrl": "toc_url"</code></pre>
+  <p><code>init</code> 的返回值是<strong>对象</strong>时,后面的字段规则就在这个对象里按 JSONPath 取值;返回值是字符串时按普通规则走。</p>
+
+  <h2>目录:<code>ruleToc</code></h2>
+  <pre><code>"ruleToc": {
+  "chapterList": "id.list@tag.dd",
+  "chapterName": "tag.a@text",
+  "chapterUrl": "tag.a@href",
+  "isVip": "class.vip@text",
+  "updateTime": "class.time@text",
+  "nextTocUrl": "class.next@href"
+}</code></pre>
+
+  <h3>列表规则与两个字段</h3>
+  <p>和搜索一样:先切出"每一章",<code>chapterName</code> / <code>chapterUrl</code> 在单章里取。章节地址为空的那一条会被丢掉,所以分卷标题那种没有链接的行可以靠这个自然跳过 —— 除非你要把它们标成<strong>卷</strong>。</p>
+
+  <h3>卷:<code>isVolume</code></h3>
+  <p>返回非空/真值时,这一条被当成<strong>卷名</strong>而不是章节(阅读页的目录会折叠成两层)。常写成 <code>class.volume-title@text</code> 或一段返回 <code>true</code> 的 JS。</p>
+
+  <h3>目录是倒着排的</h3>
+  <p>整条列表规则前面加 <code>-</code>:<code>-id.list@tag.dd</code>。这是最常见的一处修正 —— 有些站的目录从最新往回排。</p>
+
+  <h3>下一页:<code>nextTocUrl</code></h3>
+  <p>返回空串 / 空数组 / <code>null</code> 就停止。可以是单个地址,也可以是地址数组(一次取多页)。常见的两种写法:</p>
+  <pre><code>class.next@href
+@js:(() =&gt; { const n = result.match(/\d+/); return n ? '/list/1_' + (+n[1]+1) + '.html' : '' })()</code></pre>
+
+  <h3><code>isVip</code> / <code>isPay</code></h3>
+  <p>返回 <code>null</code> / <code>false</code> / <code>0</code> / 空串时视为<strong>非</strong> VIP。标成 VIP 的章节会在目录里带上标记,但<strong>不拦阅读</strong> —— 拦不拦由正文那一步决定。</p>
+
+  <h3><code>formatJs</code> 与 <code>preUpdateJs</code></h3>
+  <p><code>formatJs</code> 在目录解析完之后执行,用来整体修正(比如统一章节名前缀);<code>preUpdateJs</code> 在"检查更新"之前跑。两个都很少用,先不写。</p>
+</usehtml></article>
+</body>
+</html>

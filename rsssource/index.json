@@ -1,20 +1,20 @@
 [
   {
     "step": 1,
-    "title": "01 分类:sortUrl 怎么写",
-    "summary": "纯文本、名称::地址,以及什么时候必须写成 @js",
-    "url": "01-sort.html"
+    "title": "01 解析流程:先看有没有列表规则",
+    "summary": "ruleArticles 空不空决定一切;三种源的形态、分类、翻页与单 url 源",
+    "url": "01-flow.html"
   },
   {
     "step": 2,
-    "title": "02 列表与正文",
-    "summary": "ruleArticles / 翻页 / 字段,与 ruleContent 的取法",
-    "url": "02-list.html"
+    "title": "02 字段表",
+    "summary": "必填 / 列表型必填 / 选填 / 开关,以及规则语法与书源是同一套",
+    "url": "02-fields.html"
   },
   {
     "step": 3,
-    "title": "03 单 url 源",
-    "summary": "整站就是一个页面时,怎么用单 url 那一档",
-    "url": "03-single.html"
+    "title": "03 四个能直接改的示例",
+    "summary": "标准 RSS、网页列表型、JSON 接口型、单 url 源,外加正文样式",
+    "url": "03-examples.html"
   }
 ]
