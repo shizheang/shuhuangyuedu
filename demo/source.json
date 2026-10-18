@@ -1,0 +1,29 @@
+{
+  "bookSourceUrl": "https://cdn.jsdelivr.net/gh/shizheang/shuhuangyuedu@main/demo/",
+  "bookSourceName": "示例书站(教程)",
+  "bookSourceGroup": "教程",
+  "bookSourceComment": "《02 走查》用的那个示例站。导进来就能跑,拿它对着教程改规则最省事。",
+  "searchUrl": "search.html?q={{key}}",
+  "ruleSearch": {
+    "bookList": "class.result-list@class.result-item",
+    "name": "tag.h3@text",
+    "author": "class.author@text##作者：##",
+    "bookUrl": "tag.h3@tag.a@href",
+    "intro": "class.intro@text"
+  },
+  "ruleBookInfo": {
+    "name": "class.book-name@text",
+    "author": "class.book-author@text##作者：##",
+    "coverUrl": "class.book-cover@src",
+    "intro": "class.book-intro@html",
+    "tocUrl": "class.read-btn@href"
+  },
+  "ruleToc": {
+    "chapterList": "id.chapter-list@tag.li",
+    "chapterName": "tag.a@text",
+    "chapterUrl": "tag.a@href"
+  },
+  "ruleContent": {
+    "content": "id.content@html"
+  }
+}

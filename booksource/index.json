@@ -7,44 +7,56 @@
   },
   {
     "step": 2,
-    "title": "02 语法:一条规则从哪开始写",
-    "summary": "默认规则 / CSS / JSONPath / XPath / JS / 正则替换,以及 && || %% 与 @put @get {{}}",
-    "url": "02-syntax.html"
+    "title": "02 走查:从一个真网页写出四段规则",
+    "summary": "对着教程自带的示例站,一步步看源代码、写出搜索/详情/目录/正文,含一个真实的踩坑",
+    "url": "02-walkthrough.html"
   },
   {
     "step": 3,
-    "title": "03 地址:GET、POST、请求头与翻页",
-    "summary": "地址后面那串 JSON 能写什么;{{key}} 与 {{page}} 怎么算;相对地址谁去补",
-    "url": "03-url.html"
+    "title": "03 语法:先会这三条",
+    "summary": "规则串长什么样;列表规则取的是「每一项」;相对地址不用自己补",
+    "url": "03-syntax.html"
   },
   {
     "step": 4,
-    "title": "04 搜索与发现",
-    "summary": "列表规则取的是「每一项」的容器;字段规则在每一项里跑;发现页的两种写法",
-    "url": "04-search-explore.html"
+    "title": "04 地址:GET、POST、请求头与翻页",
+    "summary": "地址后面那串 JSON 能写什么;{{key}} 与 {{page}} 怎么算;相对地址谁去补",
+    "url": "04-url.html"
   },
   {
     "step": 5,
-    "title": "05 详情与目录",
-    "summary": "详情页字段、预处理 init,以及目录的卷、反序与下一页",
-    "url": "05-detail-toc.html"
+    "title": "05 搜索与发现",
+    "summary": "列表规则取的是「每一项」的容器;字段规则在每一项里跑;发现页的两种写法",
+    "url": "05-search-explore.html"
   },
   {
     "step": 6,
-    "title": "06 正文",
-    "summary": "正文规则怎么写才不漏段;图片要带请求头时怎么给",
-    "url": "06-content.html"
+    "title": "06 详情与目录",
+    "summary": "详情页字段、预处理 init,以及目录的卷、反序与下一页",
+    "url": "06-detail-toc.html"
   },
   {
     "step": 7,
-    "title": "07 登录、凭据与加密",
-    "summary": "登录地址、登录信息、请求头里的凭据,以及摘要/对称加解密的口径",
-    "url": "07-login-crypto.html"
+    "title": "07 正文",
+    "summary": "正文规则怎么写才不漏段;图片要带请求头时怎么给",
+    "url": "07-content.html"
   },
   {
     "step": 8,
-    "title": "08 方法与边界",
+    "title": "08 登录、凭据与加密",
+    "summary": "登录地址、登录信息、请求头里的凭据,以及摘要/对称加解密的口径",
+    "url": "08-login-crypto.html"
+  },
+  {
+    "step": 9,
+    "title": "09 方法与边界",
     "summary": "java.* 常用方法表,以及源脚本能碰什么、碰不到什么",
-    "url": "08-java-boundary.html"
+    "url": "09-java-boundary.html"
+  },
+  {
+    "step": 10,
+    "title": "10 速查:规则语法全表",
+    "summary": "五种模式 / 默认规则 / CSS / XPath / JSONPath / JS / 正则替换 / 连接符 / @put / 插值 —— 写源时回来查",
+    "url": "10-cheatsheet.html"
   }
 ]

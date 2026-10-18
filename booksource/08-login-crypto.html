@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>登录与加密</title></head>
 <body>
 <article class="doc"><usehtml>
-  <h1>07 登录、凭据与加密</h1>
+  <h1>08 登录、凭据与加密</h1>
   <p class="lead">要登录的源分两种:<strong>地址型</strong>(给你一个网页,自己登)与 <strong>JS 型</strong>(软件弹一个输入面板,源脚本拿你填的值去换 token)。两者不会混用 —— 选错的话表现是"点了登录什么都不发生"。</p>
 
   <h2>地址型:只写 <code>loginUrl</code></h2>
@@ -50,7 +50,7 @@ c.decryptStr(密文)</code></pre>
   <ul>
     <li>接口回"签名错误" → 先把拼出来的签名与浏览器里那份<strong>逐字</strong>比一遍(参数顺序、是不是少了一层 URL 编码);</li>
     <li>解密出来是乱码 → 十有八九是 <strong>iv / 模式</strong>传错,或者密钥被当成了字符串;</li>
-    <li>用到手册里没有的方法 → 会当场抛错,不会静默返回 undefined。看 <a href="08-java-boundary.html">08 方法与边界</a> 那张表。</li>
+    <li>用到手册里没有的方法 → 会当场抛错,不会静默返回 undefined。看 <a href="09-java-boundary.html">09 方法与边界</a> 那张表。</li>
   </ul>
 </usehtml></article>
 </body>

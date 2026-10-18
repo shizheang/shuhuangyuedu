@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>速查</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>10 速查:规则语法全表</h1>
+  <p class="lead">这一页是查的,不是读的。写源的时候卡在哪一条,回来找对应那节。第一次写源请从 <a href="02-walkthrough.html">02 走查</a> 开始。</p>
+
+  <h2>五种模式:靠前缀选</h2>
+  <p>规则串的第一件事是<strong>决定用哪种解析器</strong>。前缀写了就用哪种,没写就看内容猜(以 <code>$.</code> 开头当 JSONPath、以 <code>/</code> 开头当 XPath、其余当默认规则)。选错不会报错,只会取到空 —— 而空和「这一页本来就没有」在界面上长得一样。</p>
+  <table>
+    <tr><th>模式</th><th>前缀</th><th>用在哪</th></tr>
+    <tr><td>默认规则</td><td>不写,或显式写 <code>@@</code></td><td>HTML 页面,最常用</td></tr>
+    <tr><td>CSS</td><td><code>@css:</code></td><td>标准 CSS 选择器,网上搜到的现成选择器能直接用</td></tr>
+    <tr><td>JSONPath</td><td><code>@Json:</code>,或直接以 <code>$.</code> / <code>$[</code> 开头</td><td>接口返回 JSON</td></tr>
+    <tr><td>XPath</td><td><code>@XPath:</code>,或直接以 <code>/</code> / <code>//</code> 开头</td><td>HTML 与 XML 都行</td></tr>
+    <tr><td>JS</td><td><code>@js:</code>,或整段写成 <code>&lt;js&gt;…&lt;/js&gt;</code></td><td>要计算、拼接、按条件分支</td></tr>
+  </table>
+
+  <h2>默认规则</h2>
+  <p>按 <code>@</code> 分段,前几段选节点,最后一段取值。每段是 <code>类型.名称.位置</code>。</p>
+  <pre><code>class.book-list.0@tag.li@tag.a@href</code></pre>
+  <ul>
+    <li>类型:<code>class</code> / <code>id</code> / <code>tag</code> / <code>text</code>(按包含的文字找)、<code>children</code>(所有子标签,写法 <code>children[1]</code>);</li>
+    <li>位置从 <code>0</code> 开始,不写就是全部,<code>-1</code> 是倒数第一个;</li>
+    <li>位置还能排除:<code>!0:2</code> 表示「排除第 0 与第 2 个」;</li>
+    <li>取值:<code>@text</code>、<code>@html</code>(内层 HTML)、<code>@ownText</code>(只取直属文字)、<code>@textNodes</code>、<code>@all</code>(含标签本身),以及任意属性名 <code>@href</code> / <code>@src</code> / <code>@data-id</code>。</li>
+  </ul>
+  <p><strong>列表规则取的是「每一项」</strong>:<code>class.result-list@class.result-item</code> 得到的是一串条目,后面每条字段规则都在<strong>单个条目</strong>里跑,所以字段不用再写容器。⚠️ 容器与每一项<strong>同标签</strong>时别用 <code>@tag.div</code> —— 容器自己会被算成一项。</p>
+
+  <h2>CSS 与 XPath</h2>
+  <pre><code>@css:.book-list li a@href
+@XPath://div[@id='content']//p//text()</code></pre>
+  <p>两种都是标准写法,能用在网上搜到的现成选择器。CSS 后面同样可以用 <code>@</code> 继续取值;XPath 一般直接取到文本(<code>//text()</code>)或属性(<code>//@href</code>)。</p>
+
+  <h2>JSONPath</h2>
+  <pre><code>$.data.list[*]        → 列表:取数组里的每一项
+$.data.list[0].title  → 单个字段
+$..title              → 任意层级的 title</code></pre>
+  <p>列表规则取 <code>$.data.list[*]</code>,字段规则只写 <code>$.title</code> —— 与默认规则同一个道理:字段是在单个条目里跑的。</p>
+
+  <h2>JS:<code>@js:</code> 与 <code>&lt;js&gt;</code></h2>
+  <p><code>@js:</code> 只能放在<strong>最后一段</strong>;要拿前面规则的结果,用变量 <code>result</code>。整段 JS 里<strong>最后一条产生值的语句</strong>就是规则结果。</p>
+  <pre><code>@js:result.split('\n').filter(x =&gt; x.trim()).join('\n')</code></pre>
+  <p><code>&lt;js&gt;…&lt;/js&gt;</code> 可以放在任意位置,还能当分隔符用:<code>tag.li&lt;js&gt;&lt;/js&gt;//a</code>。</p>
+
+  <h2>正则替换:<code>##正则##替换</code></h2>
+  <p>跟在别的规则后面,把结果里的匹配项<strong>循环</strong>替换掉。第二段留空就是删除。</p>
+  <pre><code>class.author@text##作者：##
+id.content@html##&lt;br\s*/?&gt;##\n</code></pre>
+
+  <h2>三个连接符</h2>
+  <p>只用于同一类规则之间(不跨 JS 与正则):</p>
+  <table>
+    <tr><th>符号</th><th>含义</th></tr>
+    <tr><td><code>&amp;&amp;</code></td><td>全部取到并合并</td></tr>
+    <tr><td><code>||</code></td><td>取第一个有结果的(最常用:一个字段好几个备选位置)</td></tr>
+    <tr><td><code>%%</code></td><td>依次交错取:三个列表的 1、2、3 各取第一个,再取第二个……</td></tr>
+  </table>
+
+  <h2>把中间结果存起来:<code>@put:</code> 与 <code>@get:</code></h2>
+  <p>同一个请求要复用几次时就别取三遍:</p>
+  <pre><code>https://api.example.com/view?aid={{$.id}}@put:{"cid":"$.cid"}</code></pre>
+  <p><code>@put:</code> 把后面几个子规则的结果存进变量表,后面的规则用 <code>@get:{cid}</code> 取。它在<strong>同一次请求的那条规则链</strong>里有效。</p>
+
+  <h2>在规则里插值:<code>{{}}</code></h2>
+  <p>在<strong>搜索地址 / 发现地址</strong>里,<code>{{}}</code> 里只当 JS 写(<code>{{key}}</code>、<code>{{page}}</code>、<code>{{(page-1)*20}}</code>);在<strong>其它位置</strong>的 <code>{{}}</code> 里可以写任意规则,但要带类型前缀(<code>{{@@class.x@text}}</code>、<code>{{$.title}}</code>)。</p>
+
+  <h2>列表反序</h2>
+  <p>整条列表规则前面加一个 <code>-</code> 就把顺序倒过来 —— 有些站的目录是倒着排的:</p>
+  <pre><code>-id.chapter-list@tag.li</code></pre>
+
+  <h2>在别处</h2>
+  <p>请求地址本身能带什么(方法、请求头、表单体、翻页)见 <a href="04-url.html">04 地址</a>;规则里能用哪些 <code>java.*</code> 方法、能碰什么碰不到什么,见 <a href="09-java-boundary.html">09 方法与边界</a>。</p>
+</usehtml></article>
+</body>
+</html>

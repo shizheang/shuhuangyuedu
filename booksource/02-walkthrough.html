@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>走查</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>02 走查:从一个真网页写出四段规则</h1>
+  <p class="lead">这一页不讲语法,只做一件事:打开一个真网页,把它变成一段跑得通的书源。四条规则一条一条来,每一条都先说「在源代码里看到什么」,再说「所以写成什么」。</p>
+
+  <h2>先备好一个能试的站</h2>
+  <p>教程自带一个示例书站,地址固定不变,下面每条规则都对着它写:</p>
+  <pre><code>https://cdn.jsdelivr.net/gh/shizheang/shuhuangyuedu@main/demo/search.html?q=江湖</code></pre>
+  <p>在浏览器里打开它,然后<strong>右键 → 查看网页源代码</strong>(不是「检查」—— 我们要看的是原始 HTML,不是被脚本改过之后的 DOM)。后面每一步都用得到这个动作。</p>
+  <p>示例站一共四页,正好对应书源的四段:</p>
+  <ul>
+    <li><code>search.html</code> —— 搜索结果(一页三本书)</li>
+    <li><code>book.html?id=1</code> —— 书籍详情</li>
+    <li><code>toc.html?id=1</code> —— 目录</li>
+    <li><code>c1.html</code> / <code>c2.html</code> / <code>c3.html</code> —— 正文</li>
+  </ul>
+
+  <h2>第 1 步:搜索 —— 先找「每一本」的容器</h2>
+  <p>在搜索页的源代码里往下翻,能看到这么一段:</p>
+  <pre><code>&lt;div class="result-list"&gt;
+  &lt;div class="result-item"&gt;
+    &lt;h3 class="title"&gt;&lt;a href="book.html?id=1"&gt;江湖夜雨十年灯&lt;/a&gt;&lt;/h3&gt;
+    &lt;p class="author"&gt;作者：古月&lt;/p&gt;
+    &lt;p class="intro"&gt;一个关于旧友与远行的故事……&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="result-item"&gt; …… &lt;/div&gt;
+  &lt;div class="result-item"&gt; …… &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  <p>规律很清楚:<strong>外面一个 <code>result-list</code> 是整张列表,里面每个 <code>result-item</code> 是一本书</strong>。列表规则要取的就是里面那一层:</p>
+  <pre><code>"bookList": "class.result-list@class.result-item"</code></pre>
+  <p>然后在这<strong>每一本</strong>里再取字段 —— 注意,后面几条都<strong>不用再写容器</strong>了,因为作用域已经切到单本书里:</p>
+  <pre><code>"name":    "tag.h3@text"
+"bookUrl": "tag.h3@tag.a@href"
+"author":  "class.author@text"</code></pre>
+  <p><code>name</code> 取到的是「江湖夜雨十年灯」,<code>bookUrl</code> 取到的是 <code>book.html?id=1</code> —— 相对地址不用管,软件会按来源页补全。</p>
+
+  <h2>这一步最容易踩的坑</h2>
+  <p>容器和每一项<strong>是同一个标签</strong>时(上面两者都是 <code>div</code>),很自然会写成 <code>class.result-list@tag.div</code>。它不报错,但结果不对:列表规则会把<strong>容器自己</strong>也算成一项,于是第一条「书」是整张列表 —— 书名看着还是对的(它取了列表里第一个 h3),而作者变成了「古月、林晚、周叙」三个拼在一起。</p>
+  <p>判据很好认:<strong>第一条数据的字段里出现了本该属于别的条目的内容</strong>。改法就是别用标签名,用容器里每一项<strong>独有</strong>的那个 class(<code>class.result-item</code>)。</p>
+
+  <h2>第 2 步:详情 —— 从搜索结果点进去</h2>
+  <p>点第一本书,地址变成 <code>book.html?id=1</code>。看它的源代码:</p>
+  <pre><code>&lt;div class="book-info"&gt;
+  &lt;img class="book-cover" src="cover.svg"&gt;
+  &lt;h1 class="book-name"&gt;江湖夜雨十年灯&lt;/h1&gt;
+  &lt;p class="book-author"&gt;作者：古月&lt;/p&gt;
+  &lt;div class="book-intro"&gt; &lt;p&gt;……&lt;/p&gt; &lt;/div&gt;
+  &lt;a class="read-btn" href="toc.html?id=1"&gt;查看目录&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+  <p>这一段写进 <code>ruleBookInfo</code>。它和搜索那一段的区别是:<strong>这里没有「每一项」,整页就是一本</strong>,所以每条规则直接从头写。</p>
+  <pre><code>"ruleBookInfo": {
+  "name":     "class.book-name@text",
+  "author":   "class.book-author@text##作者：##",
+  "coverUrl": "class.book-cover@src",
+  "intro":    "class.book-intro@html",
+  "tocUrl":   "class.read-btn@href"
+}</code></pre>
+  <p>三处值得说:</p>
+  <ul>
+    <li><code>author</code> 后面那串 <code>##作者：##</code> 是<strong>正则替换</strong>:把结果里的「作者：」换掉,剩下的才是人名。站点在文字里带了前缀时都得这么剥一次 —— 不剥的话书架上会出现一个叫「作者：古月」的作者。</li>
+    <li><code>intro</code> 用 <code>@html</code> 而不是 <code>@text</code>:简介里那两段 <code>&lt;p&gt;</code> 要保留,取文字会挤成一坨。</li>
+    <li><code>tocUrl</code> 是<strong>下一段的入口</strong> —— 目录在哪一页由它说了算。找不到它就取不到目录,这是「详情正常、目录为空」最常见的原因。</li>
+  </ul>
+
+  <h2>第 3 步:目录</h2>
+  <p>打开 <code>toc.html?id=1</code>,源代码里:</p>
+  <pre><code>&lt;ul id="chapter-list"&gt;
+  &lt;li&gt;&lt;a href="c1.html"&gt;第一章 雨夜&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="c2.html"&gt;第二章 灯下&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="c3.html"&gt;第三章 十年&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+  <p>和搜索那段是同一个套路:先取「每一章」的容器(<code>li</code>),再在每一章里取标题与地址。</p>
+  <pre><code>"ruleToc": {
+  "chapterList": "id.chapter-list@tag.li",
+  "chapterName": "tag.a@text",
+  "chapterUrl":  "tag.a@href"
+}</code></pre>
+  <p>这次<strong>不会</strong>踩上面那个坑 —— 容器是 <code>ul</code>、每一项是 <code>li</code>,标签名不同,<code>@tag.li</code> 不会把容器自己算进去。</p>
+
+  <h2>第 4 步:正文</h2>
+  <p>打开 <code>c1.html</code>:</p>
+  <pre><code>&lt;h2 class="chapter-title"&gt;第一章 雨夜&lt;/h2&gt;
+&lt;div id="content"&gt;
+  &lt;p&gt;雨是从傍晚开始下的。&lt;/p&gt;
+  &lt;p&gt;沈砚站在渡口的棚子底下……&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+  <pre><code>"ruleContent": {
+  "content": "id.content@html"
+}</code></pre>
+  <p>同样用 <code>@html</code> 保住段落。正文规则<strong>只取正文那一块</strong> —— 连章名一起取进来的话,阅读页每翻一页都会再念一遍章名。</p>
+
+  <h2>拼起来,就是一份能用的源</h2>
+  <pre><code>{
+  "bookSourceUrl": "https://cdn.jsdelivr.net/gh/shizheang/shuhuangyuedu@main/demo/",
+  "bookSourceName": "示例书站(教程)",
+  "searchUrl": "search.html?q={{key}}",
+  "ruleSearch": {
+    "bookList": "class.result-list@class.result-item",
+    "name": "tag.h3@text",
+    "author": "class.author@text##作者：##",
+    "bookUrl": "tag.h3@tag.a@href",
+    "intro": "class.intro@text"
+  },
+  "ruleBookInfo": {
+    "name": "class.book-name@text",
+    "author": "class.book-author@text##作者：##",
+    "coverUrl": "class.book-cover@src",
+    "intro": "class.book-intro@html",
+    "tocUrl": "class.read-btn@href"
+  },
+  "ruleToc": {
+    "chapterList": "id.chapter-list@tag.li",
+    "chapterName": "tag.a@text",
+    "chapterUrl": "tag.a@href"
+  },
+  "ruleContent": { "content": "id.content@html" }
+}</code></pre>
+  <p><code>bookSourceUrl</code> 是整份源的<strong>基址</strong>:后面所有相对地址(<code>search.html</code>、<code>book.html?id=1</code>、<code>cover.svg</code>)都按它补全。<code>searchUrl</code> 里的 <code>{{key}}</code> 会被替换成你输入的关键词。</p>
+  <p>这份源在教程仓库的 <code>demo/source.json</code>,可以直接导入试。拿它当模板改:把 <code>bookSourceUrl</code> 换成你要做的站,再照上面四步把每条规则对着那个站的源代码重写一遍。</p>
+
+  <h2>最后:自己验一遍</h2>
+  <p>导入后在<strong>书源调试页</strong>逐段跑:搜索 → 详情 → 目录 → 正文。哪一段空,就从那一段往前看一页 —— 因为每一段的入口都是上一段给的地址:</p>
+  <ul>
+    <li>搜索为空 → 先看<strong>搜索地址</strong>在浏览器里打不打得开,再看列表规则;</li>
+    <li>详情为空 → 看搜索结果里的书地址对不对;</li>
+    <li>目录为空 → 多半是 <code>tocUrl</code> 没取到,或列表规则取成了容器;</li>
+    <li>正文为空 → 看目录里的章节地址对不对,再看正文规则。</li>
+  </ul>
+  <p>规则本身怎么写(五种模式、<code>&amp;&amp;</code> / <code>||</code>、<code>@put:</code> 这些),见下一页;要查具体写法见 <a href="10-cheatsheet.html">10 速查</a>。</p>
+</usehtml></article>
+</body>
+</html>

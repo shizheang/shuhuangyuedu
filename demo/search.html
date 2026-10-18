@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>示例书站 · 搜索</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <span class="site-name">示例书站</span>
+  <form class="search-box" action="search.html" method="get">
+    <input type="text" name="q" value="江湖" placeholder="搜书名或作者">
+    <button type="submit">搜索</button>
+  </form>
+</header>
+
+<main>
+  <p class="result-count">找到 3 本</p>
+
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="title"><a href="book.html?id=1">江湖夜雨十年灯</a></h3>
+      <p class="author">作者：古月</p>
+      <p class="intro">一个关于旧友与远行的故事。十年之前他们在渡口分别，十年之后又在同一场雨里遇见。</p>
+    </div>
+    <div class="result-item">
+      <h3 class="title"><a href="book.html?id=2">山河故人</a></h3>
+      <p class="author">作者：林晚</p>
+      <p class="intro">乱世里的一封家书，寄了三年才到。</p>
+    </div>
+    <div class="result-item">
+      <h3 class="title"><a href="book.html?id=3">灯下读书记</a></h3>
+      <p class="author">作者：周叙</p>
+      <p class="intro">一个抄书人的手记。</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">示例书站 · 仅供教程演示</footer>
+</body>
+</html>

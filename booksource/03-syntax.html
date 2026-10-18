@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>语法</title></head>
+<body>
+<article class="doc"><usehtml>
+  <h1>03 语法:先会这三条</h1>
+  <p class="lead">走查里那几条规则已经够写出一个能跑的源了。这一页只把「够用」的部分说清楚 —— 默认规则怎么写、列表规则取哪一层、取值有哪些。<strong>剩下的(<code>@js:</code>、正则替换、<code>&amp;&amp;</code> / <code>||</code>、<code>@put:</code>)用到再查 <a href="10-cheatsheet.html">10 速查</a></strong>,现在不用记。</p>
+
+  <h2>① 一条规则长什么样</h2>
+  <p>规则串按 <code>@</code> 分段:<strong>前面几段选节点,最后一段取值</strong>。每段是 <code>类型.名称.位置</code>。</p>
+  <pre><code>class.book-list.0@tag.li@tag.a@href
+└─ 选节点 ─────┘└─ 选节点 ─┘└ 取值 ┘</code></pre>
+  <ul>
+    <li>类型有四种:<code>class</code>(按 class 找)、<code>id</code>(按 id 找)、<code>tag</code>(按标签找)、<code>text</code>(按包含的文字找);</li>
+    <li>位置从 <code>0</code> 开始,不写就是全部;<code>-1</code> 是倒数第一个;</li>
+    <li>取值写 <code>@text</code>(文字)、<code>@html</code>(内层 HTML)、<code>@ownText</code>(只取直属文字),或者任意属性名 <code>@href</code> / <code>@src</code> / <code>@data-id</code>。</li>
+  </ul>
+  <p>就是这么回事 —— 走查里的 <code>class.book-name@text</code> 是「按 class 找到书名那个元素,取它的文字」,<code>tag.h3@tag.a@href</code> 是「先找 h3,再在它里面找 a,取 href」。</p>
+
+  <h2>② 列表规则取的是「每一项」</h2>
+  <p>这是整件事里最容易搞错的一处,也是走查里那个坑的来源。</p>
+  <p>列表规则(<code>bookList</code> / <code>chapterList</code>)要取<strong>每一本书 / 每一章的那个容器</strong>,不是整张列表。取对之后,后面几条字段规则<strong>都在单本 / 单章里跑</strong>,所以它们不用再写容器。</p>
+  <pre><code>list  = "class.result-list@class.result-item"   ← 每一本
+name  = "tag.h3@text"                          ← 在这本里取</code></pre>
+  <p>两个判据可以自查:</p>
+  <ul>
+    <li><strong>取到「整张列表」了</strong> → 第一条数据的字段里会混进别的条目的内容(比如作者变成三个名字拼在一起)。多半是容器和每一项用了同一个标签名(都是 <code>div</code>),<code>@tag.div</code> 把容器自己也算成了一项。改用每一项独有的 class。</li>
+    <li><strong>取到「一本书」了</strong> → 列表只有一条。多半是选择器写得太具体,匹配到了某个具体元素而不是每一项。</li>
+  </ul>
+
+  <h2>③ 相对地址不用自己补</h2>
+  <p><code>@href</code> 取到 <code>book.html?id=1</code> 这种相对地址时,软件会按<strong>来源页</strong>自动补成完整地址,封面同理。所以规则里直接写 <code>@href</code> 就行,不要自己拼域名 —— 拼了之后站点换域名就得改规则。</p>
+
+  <h2>要写别的形式时</h2>
+  <p>上面这套(默认规则)能应付大多数站。碰上这几种情况才需要换写法,都在 <a href="10-cheatsheet.html">10 速查</a>:</p>
+  <ul>
+    <li>页面返回的是 <strong>JSON</strong> 而不是 HTML → 用 <code>$.data.list[*]</code> 这类 JSONPath;</li>
+    <li>站点的结构只有 CSS 选择器才写得出来 → 用 <code>@css:</code>;</li>
+    <li>要按条件拼接、或结果要二次加工 → 用 <code>@js:</code>;</li>
+    <li>取到的文字里带了要去掉的尾巴 → 用 <code>##正则##替换</code>(走查里剥「作者：」用的就是它);</li>
+    <li>一个字段有好几个备选位置 → 用 <code>||</code> 串起来。</li>
+  </ul>
+</usehtml></article>
+</body>
+</html>

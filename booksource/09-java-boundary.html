@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>方法与边界</title></head>
 <body>
 <article class="doc"><usehtml>
-  <h1>08 方法与边界</h1>
+  <h1>09 方法与边界</h1>
   <p class="lead"><code>java.*</code> 是一张<strong>白名单</strong>:手册里没有的名字,调用会当场抛错(不是静默返回空)。所以"用了却取到 undefined"这种排查思路在这里不成立 —— 报错就是没实现。</p>
 
   <h2>网络</h2>
@@ -71,7 +71,7 @@
     <li><strong>碰不到界面</strong>:改不了主题、跳不了页面、点不了按钮(除了上面那几个明确开放的动作,比如复制到剪贴板)。</li>
     <li><strong>碰不到别的源的数据</strong> —— 变量、登录信息、cookie 都是按源隔离的。</li>
   </ul>
-  <p>写源时记住一条:规则是在一个**隔出来的环境**里跑的。手册没写的能力就是没有,不要靠"试试看"去猜。</p>
+  <p>写源时记住一条:规则是在一个<strong>隔出来的环境</strong>里跑的。手册没写的能力就是没有,不要靠"试试看"去猜。</p>
 </usehtml></article>
 </body>
 </html>
