@@ -23,6 +23,24 @@
 
 历史版本见 [Releases](https://github.com/shizheang/shuhuangyuedu/releases)。
 
+## 界面
+
+下面都是**刚装好、还没导入任何书源与订阅源**的样子。
+
+<div align="center">
+  <img src="screenshots/android-shelf.png" width="200" alt="书架">
+  <img src="screenshots/android-explore.png" width="200" alt="发现">
+  <img src="screenshots/android-rss.png" width="200" alt="订阅">
+  <img src="screenshots/android-settings.png" width="200" alt="我的">
+</div>
+
+桌面端(窗口拉宽时左侧导航栏常驻):
+
+<div align="center">
+  <img src="screenshots/desktop-shelf.png" width="420" alt="书架(桌面)">
+  <img src="screenshots/desktop-rss.png" width="420" alt="订阅(桌面)">
+</div>
+
 ## 这个应用能做什么
 
 - **书源**:导入通用格式的书源规则,搜索 / 详情 / 目录 / 正文全链路解析;一本书在别的源里找不到时,一键换源重找
